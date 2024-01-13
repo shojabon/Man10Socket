@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Man10Socket:jar">
+    <output-path>$USER_HOME$/Desktop/development/server/plugins</output-path>
+    <root id="archive" name="Man10Socket.jar">
+      <element id="module-output" name="Man10Socket" />
+    </root>
+  </artifact>
+</component>
