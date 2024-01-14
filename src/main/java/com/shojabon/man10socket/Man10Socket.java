@@ -1,6 +1,7 @@
 package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.commands.Man10SocketCommands;
+import com.shojabon.man10socket.socketfunctions.ReplyFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +13,10 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public final class Man10Socket extends JavaPlugin {
 
@@ -20,6 +24,8 @@ public final class Man10Socket extends JavaPlugin {
     private boolean running = true; // サーバーが実行中かどうかを制御するフラグ
 
     public static ConcurrentHashMap<UUID, ClientHandler> clients = new ConcurrentHashMap<>();
+
+    final static BlockingQueue<JSONObject> sendQueue = new LinkedBlockingQueue<>();
 
     @Override
     public void onEnable() {
@@ -50,6 +56,19 @@ public final class Man10Socket extends JavaPlugin {
                 }
             }
         }).start();
+
+        new Thread(() -> {
+            while (running) {
+                try {
+                    // キューからメッセージを取り出して送信
+                    JSONObject message = sendQueue.poll(1000L, java.util.concurrent.TimeUnit.MILLISECONDS);
+                    if (message == null) continue;
+                    this.sendInternal(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -70,11 +89,20 @@ public final class Man10Socket extends JavaPlugin {
     }
 
     public static int roundRobin = 0;
-    public static void send(JSONObject message){
+    private void sendInternal(JSONObject message){
         // send client round robin
         if(roundRobin >= clients.size()) roundRobin = 0;
         clients.values().toArray(new ClientHandler[0])[roundRobin].send(message);
         roundRobin++;
+    }
+
+    public static void send(JSONObject message, Consumer<JSONObject> callback){
+        if(callback != null) {
+            String replyId = UUID.randomUUID().toString();
+            ReplyFunction.replyFunctions.put(replyId, callback);
+            message.put("replyId", replyId);
+        }
+        sendQueue.add(message);
     }
 
     public static void sendEvent(String eventName, JSONObject message){
@@ -82,7 +110,7 @@ public final class Man10Socket extends JavaPlugin {
         obj.put("type", "event");
         obj.put("event", eventName);
         obj.put("data", message);
-        send(obj);
+        send(obj, null);
     }
     public static JSONObject getPlayerJSON(Player p){
         Map<String, Object> result = new HashMap<>();

@@ -2,6 +2,7 @@ package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
 import com.shojabon.man10socket.data.SocketFunction;
+import com.shojabon.man10socket.socketfunctions.ReplyFunction;
 import com.shojabon.man10socket.socketfunctions.SCommandFunction;
 import com.shojabon.man10socket.socketfunctions.VanillaCommandFunction;
 import org.json.JSONObject;
@@ -34,6 +35,7 @@ public class ClientHandler implements Runnable {
 
         registerSocketFunction(new VanillaCommandFunction());
         registerSocketFunction(new SCommandFunction());
+        registerSocketFunction(new ReplyFunction());
     }
 
     private void registerSocketFunction(SocketFunction function){
@@ -66,23 +68,21 @@ public class ClientHandler implements Runnable {
             while ((character = inFromClient.read()) != -1) {
                 // 文字を追加
                 messageBuilder.append((char) character);
-
                 // メッセージの終端を確認
-                if (messageBuilder.toString().endsWith("<E>")) {
-                    // '<E>' を除去して処理
-                    String message = messageBuilder.substring(0, messageBuilder.length() - 3);
+                if (!messageBuilder.toString().endsWith("<E>")) continue;
+                // '<E>' を除去して処理
+                String message = messageBuilder.substring(0, messageBuilder.length() - 3);
 
-                    try {
-                        // JSONObject に変換
-                        JSONObject jsonObject = new JSONObject(message);
-                        handleMessage(jsonObject);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    // StringBuilder をリセット
-                    messageBuilder = new StringBuilder();
+                try {
+                    // JSONObject に変換
+                    JSONObject jsonObject = new JSONObject(message);
+                    handleMessage(jsonObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+                // StringBuilder をリセット
+                messageBuilder = new StringBuilder();
             }
             close();
         } catch (IOException e) {
@@ -92,6 +92,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleMessage(JSONObject message){
+        System.out.println("processing " + message);
         String messageType = message.getString("type");
         if(socketFunctions.containsKey(messageType)){
             socketFunctions.get(messageType).handleMessage(message, this);
@@ -102,12 +103,12 @@ public class ClientHandler implements Runnable {
         if(replyId == null){
             return;
         }
-        HashMap<String, Object> responseObject = new HashMap<>();
+        JSONObject responseObject = new JSONObject();
         responseObject.put("type", "reply");
         responseObject.put("status", status);
         responseObject.put("message", message);
         responseObject.put("replyId", replyId);
-        send(new JSONObject(responseObject));
+        send(responseObject);
     }
 
     public void send(JSONObject jsonObject){
@@ -118,7 +119,7 @@ public class ClientHandler implements Runnable {
         try {
             DataOutputStream outToServer = new DataOutputStream(connectionSocket.getOutputStream());
             String message = jsonObject.toString() + "<E>";
-            System.out.println("send" + message);
+//            System.out.println("send" + message);
             byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8); // UTF-8エンコーディングを使用
             outToServer.write(messageBytes); // バイト配列を書き込む
         } catch (IOException e) {
