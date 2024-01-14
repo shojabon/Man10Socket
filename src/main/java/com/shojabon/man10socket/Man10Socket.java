@@ -1,25 +1,20 @@
 package com.shojabon.man10socket;
 
+import com.shojabon.man10socket.commands.Man10SocketCommands;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class Man10Socket extends JavaPlugin implements @NotNull Listener {
+public final class Man10Socket extends JavaPlugin {
 
     private ServerSocket welcomeSocket;
     private boolean running = true; // サーバーが実行中かどうかを制御するフラグ
@@ -29,7 +24,8 @@ public final class Man10Socket extends JavaPlugin implements @NotNull Listener {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new SocketEventHandler(this), this);
+        new Man10SocketCommands(this);
         new Thread(() -> {
             try {
                 int port = 6789; // サーバーのポート番号
@@ -79,6 +75,14 @@ public final class Man10Socket extends JavaPlugin implements @NotNull Listener {
         if(roundRobin >= clients.size()) roundRobin = 0;
         clients.values().toArray(new ClientHandler[0])[roundRobin].send(message);
         roundRobin++;
+    }
+
+    public static void sendEvent(String eventName, JSONObject message){
+        JSONObject obj = new JSONObject();
+        obj.put("type", "event");
+        obj.put("event", eventName);
+        obj.put("data", message);
+        send(obj);
     }
     public static JSONObject getPlayerJSON(Player p){
         Map<String, Object> result = new HashMap<>();

@@ -1,10 +1,9 @@
 package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
-import com.shojabon.man10socket.data_class.SocketFunction;
-import com.shojabon.man10socket.handlers.SCommandHandler;
-import com.shojabon.man10socket.handlers.VanillaCommandHandler;
-import org.bukkit.Bukkit;
+import com.shojabon.man10socket.data.SocketFunction;
+import com.shojabon.man10socket.socketfunctions.SCommandFunction;
+import com.shojabon.man10socket.socketfunctions.VanillaCommandFunction;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,11 +12,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Queue;
+import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClientHandler implements Runnable {
@@ -35,8 +32,8 @@ public class ClientHandler implements Runnable {
         this.connectionSocket = socket;
         this.clientId = clientId;
 
-        registerSocketFunction(new VanillaCommandHandler());
-        registerSocketFunction(new SCommandHandler());
+        registerSocketFunction(new VanillaCommandFunction());
+        registerSocketFunction(new SCommandFunction());
     }
 
     private void registerSocketFunction(SocketFunction function){
@@ -99,6 +96,18 @@ public class ClientHandler implements Runnable {
         if(socketFunctions.containsKey(messageType)){
             socketFunctions.get(messageType).handleMessage(message, this);
         }
+    }
+
+    public void sendReply(String status, Object message, String replyId){
+        if(replyId == null){
+            return;
+        }
+        HashMap<String, Object> responseObject = new HashMap<>();
+        responseObject.put("type", "reply");
+        responseObject.put("status", status);
+        responseObject.put("message", message);
+        responseObject.put("replyId", replyId);
+        send(new JSONObject(responseObject));
     }
 
     public void send(JSONObject jsonObject){

@@ -1,4 +1,4 @@
-package com.shojabon.man10socket.data_class;
+package com.shojabon.man10socket.data;
 
 import com.shojabon.man10socket.ClientHandler;
 import org.json.JSONObject;
