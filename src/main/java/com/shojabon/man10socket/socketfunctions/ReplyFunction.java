@@ -20,13 +20,23 @@ import java.util.function.Function;
 )
 public class ReplyFunction extends SocketFunction {
     public static ConcurrentHashMapWithTimeout<String, Consumer<JSONObject>> replyFunctions = new ConcurrentHashMapWithTimeout<>(5);
+    public static ConcurrentHashMapWithTimeout<String, Object> replyLocks = new ConcurrentHashMapWithTimeout<>(5);
+    public static ConcurrentHashMapWithTimeout<String, JSONObject> replyData = new ConcurrentHashMapWithTimeout<>(5);
 
     @Override
     public void handleMessage(JSONObject message, ClientHandler client) {
         String replyId = message.getString("replyId");
-        if(!replyFunctions.containsKey(replyId)) return;
-        Bukkit.broadcastMessage("b");
-        replyFunctions.get(replyId).accept(message);
-        replyFunctions.remove(replyId);
+        replyData.put(replyId, message);
+        if(replyFunctions.containsKey(replyId)){
+            replyFunctions.get(replyId).accept(message);
+            replyFunctions.remove(replyId);
+        }
+        if(replyLocks.containsKey(replyId)){
+            Object lock = replyLocks.get(replyId);
+            synchronized (lock){
+                lock.notify();
+                replyLocks.remove(replyId);
+            }
+        }
     }
 }

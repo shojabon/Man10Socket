@@ -96,13 +96,47 @@ public final class Man10Socket extends JavaPlugin {
         roundRobin++;
     }
 
-    public static void send(JSONObject message, Consumer<JSONObject> callback){
-        if(callback != null) {
+    public static JSONObject send(JSONObject message){
+        return send(message, false, null);
+    }
+
+    public static JSONObject send(JSONObject message, Boolean reply){
+        return send(message, reply, null);
+    }
+
+    public static JSONObject send(JSONObject message, Consumer<JSONObject> callback){
+        return send(message, false, callback);
+    }
+
+    private static JSONObject send(JSONObject message, Boolean reply, Consumer<JSONObject> callback){
+        if (callback != null || reply) {
             String replyId = UUID.randomUUID().toString();
-            ReplyFunction.replyFunctions.put(replyId, callback);
             message.put("replyId", replyId);
+
+            if (callback != null) {
+                ReplyFunction.replyFunctions.put(replyId, callback);
+                sendQueue.add(message);
+            } else {
+                // Declare lock as a final object to be able to use it in the synchronized block
+                final Object lock = new Object();
+                ReplyFunction.replyLocks.put(replyId, lock);
+                sendQueue.add(message);
+
+                synchronized (lock) {
+                    try {
+                        lock.wait(1000); // Wait for 1 second or until notified
+                        JSONObject replyData = ReplyFunction.replyData.remove(replyId); // Remove and return the reply data
+                        return replyData;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt(); // Properly handle the InterruptedException
+                        return null;
+                    }
+                }
+            }
+        }else{
+            sendQueue.add(message);
         }
-        sendQueue.add(message);
+        return null;
     }
 
     public static void sendEvent(String eventName, JSONObject message){
@@ -110,7 +144,7 @@ public final class Man10Socket extends JavaPlugin {
         obj.put("type", "event");
         obj.put("event", eventName);
         obj.put("data", message);
-        send(obj, null);
+        send(obj);
     }
     public static JSONObject getPlayerJSON(Player p){
         Map<String, Object> result = new HashMap<>();
