@@ -1,5 +1,7 @@
 package com.shojabon.man10socket;
 
+import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
+import com.shojabon.man10socket.data_class.SocketFunction;
 import com.shojabon.man10socket.handlers.SCommandHandler;
 import com.shojabon.man10socket.handlers.VanillaCommandHandler;
 import org.bukkit.Bukkit;
@@ -14,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -25,9 +28,21 @@ public class ClientHandler implements Runnable {
 
     private LinkedBlockingQueue<JSONObject> messageQueue = new LinkedBlockingQueue<>();
 
+    private final ConcurrentHashMap<String, SocketFunction> socketFunctions = new ConcurrentHashMap<>();
+
+
     public ClientHandler(Socket socket, UUID clientId) {
         this.connectionSocket = socket;
         this.clientId = clientId;
+
+        registerSocketFunction(new VanillaCommandHandler());
+        registerSocketFunction(new SCommandHandler());
+    }
+
+    private void registerSocketFunction(SocketFunction function){
+        SocketFunctionDefinition definition = function.getClass().getAnnotation(SocketFunctionDefinition.class);
+        if(definition == null) return;
+        socketFunctions.put(definition.type(), function);
     }
 
     @Override
@@ -74,19 +89,15 @@ public class ClientHandler implements Runnable {
             }
             close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Client Disconnected");
             close();
         }
     }
 
     private void handleMessage(JSONObject message){
         String messageType = message.getString("type");
-        if(messageType.equals("vanillaCommand")){
-            VanillaCommandHandler handler = new VanillaCommandHandler(this);
-            handler.handleMessage(message);
-        }else if(messageType.equals("sCommand")) {
-            SCommandHandler handler = new SCommandHandler(this);
-            handler.handleMessage(message);
+        if(socketFunctions.containsKey(messageType)){
+            socketFunctions.get(messageType).handleMessage(message, this);
         }
     }
 
@@ -98,6 +109,7 @@ public class ClientHandler implements Runnable {
         try {
             DataOutputStream outToServer = new DataOutputStream(connectionSocket.getOutputStream());
             String message = jsonObject.toString() + "<E>";
+            System.out.println("send" + message);
             byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8); // UTF-8エンコーディングを使用
             outToServer.write(messageBytes); // バイト配列を書き込む
         } catch (IOException e) {

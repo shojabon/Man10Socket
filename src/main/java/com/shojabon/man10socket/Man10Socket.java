@@ -72,6 +72,14 @@ public final class Man10Socket extends JavaPlugin implements @NotNull Listener {
             client.close();
         }
     }
+
+    public static int roundRobin = 0;
+    public static void send(JSONObject message){
+        // send client round robin
+        if(roundRobin >= clients.size()) roundRobin = 0;
+        clients.values().toArray(new ClientHandler[0])[roundRobin].send(message);
+        roundRobin++;
+    }
     public static JSONObject getPlayerJSON(Player p){
         Map<String, Object> result = new HashMap<>();
         result.put("name", p.getName());
@@ -90,9 +98,7 @@ public final class Man10Socket extends JavaPlugin implements @NotNull Listener {
 //        data.put("time", System.currentTimeMillis());
 //        JSONObject obj = new JSONObject(data);
 //        // send client round robin
-//        for(ClientHandler client: clients.values()){
-//            client.send(obj);
-//        }
+//        send(obj);
 //
 //    }
 }
