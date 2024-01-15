@@ -2,6 +2,7 @@ package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
 import com.shojabon.man10socket.data.SocketFunction;
+import com.shojabon.man10socket.socketfunctions.PlayerTellFunction;
 import com.shojabon.man10socket.socketfunctions.ReplyFunction;
 import com.shojabon.man10socket.socketfunctions.SCommandFunction;
 import com.shojabon.man10socket.socketfunctions.VanillaCommandFunction;
@@ -36,6 +37,7 @@ public class ClientHandler implements Runnable {
         registerSocketFunction(new VanillaCommandFunction());
         registerSocketFunction(new SCommandFunction());
         registerSocketFunction(new ReplyFunction());
+        registerSocketFunction(new PlayerTellFunction());
     }
 
     private void registerSocketFunction(SocketFunction function){
@@ -92,10 +94,14 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleMessage(JSONObject message){
-        System.out.println("processing " + message);
+//        System.out.println("processing " + message);
         String messageType = message.getString("type");
         if(socketFunctions.containsKey(messageType)){
-            socketFunctions.get(messageType).handleMessage(message, this);
+            String replyId = null;
+            if(message.has("replyId")){
+                replyId = message.getString("replyId");
+            }
+            socketFunctions.get(messageType).handleMessage(message, this, replyId);
         }
     }
 
@@ -106,7 +112,7 @@ public class ClientHandler implements Runnable {
         JSONObject responseObject = new JSONObject();
         responseObject.put("type", "reply");
         responseObject.put("status", status);
-        responseObject.put("message", message);
+        responseObject.put("data", message);
         responseObject.put("replyId", replyId);
         send(responseObject);
     }

@@ -13,7 +13,7 @@ import org.json.JSONObject;
 )
 public class SCommandFunction extends SocketFunction {
     @Override
-    public void handleMessage(JSONObject message, ClientHandler client) {
+    public void handleMessage(JSONObject message, ClientHandler client, String replyId){
         ServerExecCommandSender executor = new ServerExecCommandSender();
         SCommandRouter.executeSCommand(executor, message.getString("command"));
         if(!message.has("replyId")){

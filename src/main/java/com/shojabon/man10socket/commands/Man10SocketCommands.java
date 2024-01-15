@@ -25,7 +25,7 @@ public class Man10SocketCommands extends SCommandRouter {
         addCommand(
                 new SCommandObject()
                         .prefix("test")
-                        .permission("man10shopv3.test")
+                        .permission("man10socket.test")
                         .explanation("テスト")
                         .executor(new TestCommand(plugin))
         );

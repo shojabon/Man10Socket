@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="SCommandRouter1">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../SCommandRouter/out/SCommandRouter.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

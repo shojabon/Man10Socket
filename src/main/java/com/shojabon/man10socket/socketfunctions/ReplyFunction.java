@@ -24,8 +24,7 @@ public class ReplyFunction extends SocketFunction {
     public static ConcurrentHashMapWithTimeout<String, JSONObject> replyData = new ConcurrentHashMapWithTimeout<>(5);
 
     @Override
-    public void handleMessage(JSONObject message, ClientHandler client) {
-        String replyId = message.getString("replyId");
+    public void handleMessage(JSONObject message, ClientHandler client, String replyId){
         replyData.put(replyId, message);
         if(replyFunctions.containsKey(replyId)){
             replyFunctions.get(replyId).accept(message);

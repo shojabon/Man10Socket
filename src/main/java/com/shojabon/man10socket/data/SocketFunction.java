@@ -5,6 +5,6 @@ import org.json.JSONObject;
 
 public class SocketFunction {
 
-    public void handleMessage(JSONObject message, ClientHandler client){
+    public void handleMessage(JSONObject message, ClientHandler client, String replyId){
     }
 }

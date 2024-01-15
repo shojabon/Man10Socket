@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
         type = "command"
 )
 public class VanillaCommandFunction extends SocketFunction {
-    public void handleMessage(JSONObject message, ClientHandler client){
+    public void handleMessage(JSONObject message, ClientHandler client, String replyId){
         CompletableFuture<String> future = new ServerExecCommandSender().executeCommand(message.getString("command"), TimeUnit.MILLISECONDS);
         future.thenAccept((String response) -> {
             if(!message.has("replyId")){

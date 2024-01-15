@@ -25,13 +25,15 @@ public class TestCommand implements CommandExecutor {
         obj.put("data", new JSONObject());
         obj.put("path", "test/a/d");
         obj.put("target", "Man10Shop");
-        Long start = System.currentTimeMillis();
-        for(int i = 0; i < 10000; i++){
-            JSONObject reply = Man10Socket.send(obj);
-//            Bukkit.broadcastMessage(String.valueOf(reply));
-        }
-        Long end = System.currentTimeMillis();
-        p.sendMessage("time: " + (end - start));
+        new Thread(() -> {
+            Long start = System.currentTimeMillis();
+            for(int i = 0; i < 10000; i++){
+                JSONObject reply = Man10Socket.send(obj, true);
+                Bukkit.broadcastMessage(String.valueOf(reply));
+            }
+            Long end = System.currentTimeMillis();
+            p.sendMessage("time: " + (end - start));
+        }).start();
         return true;
     }
 }
