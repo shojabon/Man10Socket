@@ -1,16 +1,22 @@
 package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.utils.JSONConverter;
+import com.shojabon.scommandrouter.SCommandRouter.SCommandRouter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class SocketEventHandler implements @NotNull Listener {
     Man10Socket main;
@@ -86,4 +92,26 @@ public class SocketEventHandler implements @NotNull Listener {
         Man10Socket.sendEvent("player_quit", data);
     }
 
+    @EventHandler
+    public void tabComplete(TabCompleteEvent e) throws InterruptedException {
+        JSONObject data = new JSONObject();
+        if(e.getSender() instanceof Player){
+            data.put("player", ((Player) e.getSender()).getUniqueId());
+        }else{
+            data.put("player", JSONObject.NULL);
+        }
+        data.put("command", e.getBuffer());
+        //split buffer into args but remove first arg
+        String[] args = e.getBuffer().split(" ");
+        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+
+//        List<String> tab = SCommandRouter.tabComplete("comm", e.getSender(), newArgs);
+//        // print newArgs and tab
+//        Bukkit.broadcastMessage("args: " + Arrays.toString(newArgs));
+//        Bukkit.broadcastMessage("tab: " + Arrays.toString(tab.toArray()));
+//
+//
+//        e.setCompletions(tab);
+//        Man10Socket.sendEvent("tab_complete", data);
+    }
 }

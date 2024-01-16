@@ -1,8 +1,7 @@
 <component name="libraryTable">
   <library name="McUtils">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/McUtils.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/SCommandRouter.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../McUtils/out/artifacts/McUtils_jar/McUtils.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

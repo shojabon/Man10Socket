@@ -2,16 +2,13 @@ package com.shojabon.man10socket.socketfunctions;
 
 import com.shojabon.man10socket.ClientHandler;
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
-import com.shojabon.man10socket.commands.subcommands.DynamicTest;
+import com.shojabon.man10socket.data.EmptyCommandProcessor;
 import com.shojabon.man10socket.data.SocketFunction;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.eclipse.sisu.Dynamic;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.UUID;
 
 @SocketFunctionDefinition(
         name = "Register Command",
@@ -26,7 +23,7 @@ public class RegisterCommandFunction extends SocketFunction {
                 return;
             }
         }
-        Bukkit.getServer().getCommandMap().register(message.getString("command"), new DynamicTest(message.getString("command")));
+        Bukkit.getServer().getCommandMap().register(message.getString("command"), new EmptyCommandProcessor(message.getString("command")));
         try {
             Class<?> craftServer = Bukkit.getServer().getClass();
             Method syncCommandsMethod = craftServer.getDeclaredMethod("syncCommands");

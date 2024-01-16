@@ -2,9 +2,13 @@ package com.shojabon.man10socket.commands;
 
 import com.shojabon.man10socket.Man10Socket;
 import com.shojabon.man10socket.commands.subcommands.PlayersInfoCommand;
+import com.shojabon.man10socket.commands.subcommands.ReloadCommand;
 import com.shojabon.man10socket.commands.subcommands.TestCommand;
 import com.shojabon.scommandrouter.SCommandRouter.SCommandObject;
 import com.shojabon.scommandrouter.SCommandRouter.SCommandRouter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Man10SocketCommands extends SCommandRouter {
 
@@ -33,11 +37,20 @@ public class Man10SocketCommands extends SCommandRouter {
 
         addCommand(
                 new SCommandObject()
+                        .prefix("reload")
+                        .permission("man10socket.reload")
+                        .explanation("リロード")
+                        .executor(new ReloadCommand(plugin))
+        );
+
+        addCommand(
+                new SCommandObject()
                         .prefix("playersInfo")
                         .permission("man10socket.playersInfo")
                         .explanation("サーバーにいるプレイヤーの情報を取得")
                         .executor(new PlayersInfoCommand(plugin))
         );
+
     }
 
 

@@ -1,7 +1,6 @@
 package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.commands.Man10SocketCommands;
-import com.shojabon.man10socket.commands.subcommands.DynamicTest;
 import com.shojabon.man10socket.socketfunctions.ReplyFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -22,7 +21,7 @@ import java.util.function.Consumer;
 public final class Man10Socket extends JavaPlugin {
 
     private ServerSocket welcomeSocket;
-    private boolean running = true; // サーバーが実行中かどうかを制御するフラグ
+    public boolean running = true; // サーバーが実行中かどうかを制御するフラグ
 
     public static ConcurrentHashMap<UUID, ClientHandler> clients = new ConcurrentHashMap<>();
 
@@ -35,7 +34,10 @@ public final class Man10Socket extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SocketEventHandler(this), this);
         new Man10SocketCommands(this);
 
-        Bukkit.getServer().getCommandMap().register("dynamic", new DynamicTest("dynamic"));
+        startServer();
+    }
+
+    public void startServer(){
         new Thread(() -> {
             try {
                 int port = getConfig().getInt("listeningPort"); // サーバーのポート番号
