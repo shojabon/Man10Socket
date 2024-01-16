@@ -6,10 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerCommandSendEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -21,13 +18,13 @@ public class SocketEventHandler implements @NotNull Listener {
         this.main = main;
     }
 
-//    @EventHandler
-//    public void onPlayerMove(PlayerMoveEvent e){
-//        JSONObject data = new JSONObject();
-//        data.put("player", e.getPlayer().getUniqueId());
-//        data.put("location", JSONConverter.locationToJSON(e.getTo()));
-//        Man10Socket.sendEvent("player_move", data);
-//    }
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent e){
+        JSONObject data = new JSONObject();
+        data.put("player", e.getPlayer().getUniqueId());
+        data.put("location", JSONConverter.locationToJSON(e.getTo()));
+        Man10Socket.sendEvent("player_move", data);
+    }
 //
 //    @EventHandler
 //    public void onPlayerInteract(PlayerInteractEvent e){
@@ -43,13 +40,14 @@ public class SocketEventHandler implements @NotNull Listener {
 //        Man10Socket.sendEvent("player_interact", data);
 //    }
 //
-//    @EventHandler
-//    public void playerCommandEvent(PlayerCommandPreprocessEvent e){
-//        JSONObject data = new JSONObject();
-//        data.put("player", e.getPlayer().getUniqueId());
-//        data.put("command", e.getMessage());
-//        Man10Socket.sendEvent("player_command_send", data);
-//    }
+    @EventHandler
+    public void playerCommandEvent(PlayerCommandPreprocessEvent e){
+        JSONObject data = new JSONObject();
+        data.put("player", e.getPlayer().getUniqueId());
+        data.put("command", e.getMessage());
+        Man10Socket.sendEvent("player_command_send", data);
+//        e.setCancelled(true);
+    }
 //
 //    @EventHandler
 //    public void inventoryClickEvent(InventoryClickEvent e){
@@ -74,5 +72,18 @@ public class SocketEventHandler implements @NotNull Listener {
 //        data.put("inventoryName", e.getView().getTitle());
 //        Man10Socket.sendEvent("inventory_close", data);
 //    }
+
+    @EventHandler
+    public void playerJoin(PlayerJoinEvent e){
+        JSONObject data = new JSONObject();
+        data.put("player", JSONConverter.playerToJSON(e.getPlayer()));
+        Man10Socket.sendEvent("player_join", data);
+    }
+    @EventHandler
+    public void playerQuit(PlayerQuitEvent e){
+        JSONObject data = new JSONObject();
+        data.put("player", JSONConverter.playerToJSON(e.getPlayer()));
+        Man10Socket.sendEvent("player_quit", data);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.shojabon.man10socket.commands;
 
 import com.shojabon.man10socket.Man10Socket;
+import com.shojabon.man10socket.commands.subcommands.PlayersInfoCommand;
 import com.shojabon.man10socket.commands.subcommands.TestCommand;
 import com.shojabon.scommandrouter.SCommandRouter.SCommandObject;
 import com.shojabon.scommandrouter.SCommandRouter.SCommandRouter;
@@ -9,7 +10,7 @@ public class Man10SocketCommands extends SCommandRouter {
 
     Man10Socket plugin;
     public Man10SocketCommands(Man10Socket plugin) {
-        super(plugin, "test");
+        super(plugin, "man10socket");
         this.plugin = plugin;
         registerCommands();
         registerEvents();
@@ -28,6 +29,14 @@ public class Man10SocketCommands extends SCommandRouter {
                         .permission("man10socket.test")
                         .explanation("テスト")
                         .executor(new TestCommand(plugin))
+        );
+
+        addCommand(
+                new SCommandObject()
+                        .prefix("playersInfo")
+                        .permission("man10socket.playersInfo")
+                        .explanation("サーバーにいるプレイヤーの情報を取得")
+                        .executor(new PlayersInfoCommand(plugin))
         );
     }
 

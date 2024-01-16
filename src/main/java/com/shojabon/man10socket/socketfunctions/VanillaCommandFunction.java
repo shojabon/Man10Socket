@@ -19,6 +19,7 @@ public class VanillaCommandFunction extends SocketFunction {
             if(!message.has("replyId")){
                 return;
             }
+
             client.sendReply("success", response, message.getString("replyId"));
         });
 

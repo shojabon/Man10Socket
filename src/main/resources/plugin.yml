@@ -3,4 +3,4 @@ version: '${project.version}'
 main: com.shojabon.man10socket.Man10Socket
 api-version: '1.19'
 commands:
-  test:
+  man10socket:

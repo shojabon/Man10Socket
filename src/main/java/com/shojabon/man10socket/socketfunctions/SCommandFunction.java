@@ -20,6 +20,8 @@ public class SCommandFunction extends SocketFunction {
             return;
         }
 
-        client.sendReply("success", executor.messageBuffer.toString(), message.getString("replyId"));
+        // if json serializable object
+        String replyData = executor.messageBuffer.toString();
+        client.sendReply("success", replyData, message.getString("replyId"));
     }
 }

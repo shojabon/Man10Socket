@@ -2,12 +2,15 @@ package com.shojabon.man10socket.utils;
 
 import com.shojabon.mcutils.Utils.SItemStack;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JSONConverter {
 
@@ -43,6 +46,14 @@ public class JSONConverter {
         itemData.put("lore", lore);
         itemData.put("customModelData", customModelData);
         return itemData;
+    }
+
+    public static JSONObject playerToJSON(Player p){
+        JSONObject result = new JSONObject();
+        result.put("name", p.getName());
+        result.put("uuid", p.getUniqueId().toString());
+        if(p.getAddress() != null) result.put("ipAddress", p.getAddress().getAddress().getHostAddress());
+        return result;
     }
 
 }

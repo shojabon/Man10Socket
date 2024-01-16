@@ -1,6 +1,7 @@
 package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.commands.Man10SocketCommands;
+import com.shojabon.man10socket.commands.subcommands.DynamicTest;
 import com.shojabon.man10socket.socketfunctions.ReplyFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -30,11 +31,14 @@ public final class Man10Socket extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
+        saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(new SocketEventHandler(this), this);
         new Man10SocketCommands(this);
+
+        Bukkit.getServer().getCommandMap().register("dynamic", new DynamicTest("dynamic"));
         new Thread(() -> {
             try {
-                int port = 6789; // サーバーのポート番号
+                int port = getConfig().getInt("listeningPort"); // サーバーのポート番号
                 welcomeSocket = new ServerSocket(port);
 
                 System.out.println("サーバーがポート " + port + " で待機中...");

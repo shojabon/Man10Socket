@@ -2,10 +2,7 @@ package com.shojabon.man10socket;
 
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
 import com.shojabon.man10socket.data.SocketFunction;
-import com.shojabon.man10socket.socketfunctions.PlayerTellFunction;
-import com.shojabon.man10socket.socketfunctions.ReplyFunction;
-import com.shojabon.man10socket.socketfunctions.SCommandFunction;
-import com.shojabon.man10socket.socketfunctions.VanillaCommandFunction;
+import com.shojabon.man10socket.socketfunctions.*;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -38,6 +35,7 @@ public class ClientHandler implements Runnable {
         registerSocketFunction(new SCommandFunction());
         registerSocketFunction(new ReplyFunction());
         registerSocketFunction(new PlayerTellFunction());
+        registerSocketFunction(new RegisterCommandFunction());
     }
 
     private void registerSocketFunction(SocketFunction function){
