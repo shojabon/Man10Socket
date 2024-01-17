@@ -92,19 +92,18 @@ public class SocketEventHandler implements @NotNull Listener {
         Man10Socket.sendEvent("player_quit", data);
     }
 
-    @EventHandler
-    public void tabComplete(TabCompleteEvent e) throws InterruptedException {
-        JSONObject data = new JSONObject();
-        if(e.getSender() instanceof Player){
-            data.put("player", ((Player) e.getSender()).getUniqueId());
-        }else{
-            data.put("player", JSONObject.NULL);
-        }
-        data.put("command", e.getBuffer());
-        //split buffer into args but remove first arg
-        String[] args = e.getBuffer().split(" ");
-        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
-
+//    @EventHandler
+//    public void tabComplete(TabCompleteEvent e) throws InterruptedException {
+//        JSONObject data = new JSONObject();
+//        if(e.getSender() instanceof Player){
+//            data.put("player", ((Player) e.getSender()).getUniqueId());
+//        }else{
+//            data.put("player", JSONObject.NULL);
+//        }
+//        data.put("command", e.getBuffer());
+//        //split buffer into args but remove first arg
+//        String[] args = e.getBuffer().split(" ");
+//        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
 //        List<String> tab = SCommandRouter.tabComplete("comm", e.getSender(), newArgs);
 //        // print newArgs and tab
 //        Bukkit.broadcastMessage("args: " + Arrays.toString(newArgs));
@@ -113,5 +112,5 @@ public class SocketEventHandler implements @NotNull Listener {
 //
 //        e.setCompletions(tab);
 //        Man10Socket.sendEvent("tab_complete", data);
-    }
+//    }
 }

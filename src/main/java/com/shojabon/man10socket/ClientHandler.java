@@ -3,6 +3,8 @@ package com.shojabon.man10socket;
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
 import com.shojabon.man10socket.data.SocketFunction;
 import com.shojabon.man10socket.socketfunctions.*;
+import com.shojabon.man10socket.socketfunctions.GUI.OpenGUIFunction;
+import org.bukkit.Bukkit;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -37,6 +39,7 @@ public class ClientHandler implements Runnable {
         registerSocketFunction(new PlayerTellFunction());
         registerSocketFunction(new RegisterCommandFunction());
         registerSocketFunction(new RegisterCommandSchemaFunction());
+        registerSocketFunction(new OpenGUIFunction());
     }
 
     private void registerSocketFunction(SocketFunction function){
@@ -77,6 +80,7 @@ public class ClientHandler implements Runnable {
                 try {
                     // JSONObject に変換
                     JSONObject jsonObject = new JSONObject(message);
+//                    System.out.println(jsonObject.toString());
                     handleMessage(jsonObject);
                 } catch (Exception e) {
                     e.printStackTrace();

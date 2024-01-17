@@ -2,6 +2,7 @@ package com.shojabon.man10socket.utils;
 
 import com.shojabon.mcutils.Utils.SItemStack;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +55,26 @@ public class JSONConverter {
         result.put("uuid", p.getUniqueId().toString());
         if(p.getAddress() != null) result.put("ipAddress", p.getAddress().getAddress().getHostAddress());
         return result;
+    }
+
+    public static ItemStack JSONToItemStack(JSONObject data){
+        SItemStack sItemStack = null;
+        if(data.has("typeBase64")) {
+            sItemStack = SItemStack.fromBase64(data.getString("typeBase64"));
+        }else if(data.has("material")){
+            sItemStack = new SItemStack(Material.valueOf(data.getString("material")));
+        }
+        if(sItemStack == null) return null;
+
+        if(data.has("amount")) sItemStack.setAmount(data.getInt("amount"));
+        if(data.has("displayName")) sItemStack.setDisplayName(data.getString("displayName"));
+        if(data.has("lore")) {
+            for(Object obj : data.getJSONArray("lore")){
+                sItemStack.addLore((String) obj);
+            }
+        }
+        if(data.has("customModelData")) sItemStack.setCustomModelData(data.getInt("customModelData"));
+        return sItemStack.build();
     }
 
 }
