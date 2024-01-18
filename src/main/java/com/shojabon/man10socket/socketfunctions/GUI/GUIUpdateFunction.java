@@ -11,8 +11,6 @@ import com.shojabon.mcutils.Utils.SItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,28 +18,25 @@ import org.json.JSONObject;
 import java.util.UUID;
 
 @SocketFunctionDefinition(
-        name = "Open GUI",
-        type = "gui_open"
+        name = "Update GUI",
+        type = "gui_update"
 )
-public class OpenGUIFunction extends SocketFunction {
+public class GUIUpdateFunction extends SocketFunction {
     @Override
     public void handleMessage(JSONObject message, ClientHandler client, String replyId){
-        for(String key : new String[]{"player", "schema", "size", "title", "id"}){
+        for(String key : new String[]{"schema", "id"}){
             if(!message.has(key)){
                 client.sendReply("error_invalid_args_" + key, null, replyId);
                 return;
             }
         }
         try{
-            UUID playerUUID = UUID.fromString(message.getString("player"));
-            Player player = Bukkit.getPlayer(playerUUID);
             String id = message.getString("id");
-            if(player == null){
-                client.sendReply("error_invalid_args_player", null, replyId);
+            if(!SocketInventory.activeSessions.containsKey(id)){
+                client.sendReply("error_invalid_args_id", null, replyId);
                 return;
             }
-
-            SocketInventory inv = new SocketInventory(message.getString("title"), message.getInt("size"), Man10Socket.getPlugin(Man10Socket.class));
+            SInventory inv = SocketInventory.activeSessions.get(id);
 
             for(Object obj : message.getJSONArray("schema")){
                 JSONObject item = (JSONObject) obj;
@@ -55,6 +50,10 @@ public class OpenGUIFunction extends SocketFunction {
                     itemObject = new ItemStack(Material.AIR);
                 }else{
                     itemObject = JSONConverter.JSONToItemStack(item.getJSONObject("item"));
+                }
+                if(itemObject == null){
+                    client.sendReply("error_invalid_args_schema", null, replyId);
+                    return;
                 }
                 SInventoryItem sItem = new SInventoryItem(itemObject);
                 sItem.clickable(false);
@@ -72,15 +71,7 @@ public class OpenGUIFunction extends SocketFunction {
                 }
             }
 
-            inv.setOnCloseEvent(e -> {
-                JSONObject data = new JSONObject();
-                data.put("player", e.getPlayer().getUniqueId());
-                data.put("id", id);
-                Man10Socket.sendEvent("gui_close", data);
-                SocketInventory.activeSessions.remove(id);
-            });
-            SocketInventory.activeSessions.put(id, inv);
-            inv.open(player);
+            inv.renderInventory();
 
             client.sendReply("success", null, replyId);
         }catch (Exception e){

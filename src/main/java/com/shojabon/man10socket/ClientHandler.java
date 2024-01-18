@@ -3,6 +3,7 @@ package com.shojabon.man10socket;
 import com.shojabon.man10socket.annotations.SocketFunctionDefinition;
 import com.shojabon.man10socket.data.SocketFunction;
 import com.shojabon.man10socket.socketfunctions.*;
+import com.shojabon.man10socket.socketfunctions.GUI.GUIUpdateFunction;
 import com.shojabon.man10socket.socketfunctions.GUI.OpenGUIFunction;
 import org.bukkit.Bukkit;
 import org.json.JSONObject;
@@ -39,7 +40,9 @@ public class ClientHandler implements Runnable {
         registerSocketFunction(new PlayerTellFunction());
         registerSocketFunction(new RegisterCommandFunction());
         registerSocketFunction(new RegisterCommandSchemaFunction());
+
         registerSocketFunction(new OpenGUIFunction());
+        registerSocketFunction(new GUIUpdateFunction());
     }
 
     private void registerSocketFunction(SocketFunction function){
