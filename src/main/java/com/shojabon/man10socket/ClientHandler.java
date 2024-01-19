@@ -39,7 +39,6 @@ public class ClientHandler implements Runnable {
         registerSocketFunction(new ReplyFunction());
         registerSocketFunction(new PlayerTellFunction());
         registerSocketFunction(new RegisterCommandFunction());
-        registerSocketFunction(new RegisterCommandSchemaFunction());
 
         registerSocketFunction(new OpenGUIFunction());
         registerSocketFunction(new GUIUpdateFunction());

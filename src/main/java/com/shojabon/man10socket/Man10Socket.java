@@ -53,6 +53,7 @@ public final class Man10Socket extends JavaPlugin {
                     UUID uuid = UUID.randomUUID();
                     ClientHandler handler = new ClientHandler(connectionSocket, uuid);
                     clients.put(uuid, handler);
+                    Man10Socket.sendEvent("server_connected", new JSONObject());
                     new Thread(handler).start();
                 }
             } catch (IOException e) {
@@ -94,12 +95,13 @@ public final class Man10Socket extends JavaPlugin {
         }
     }
 
-    public static int roundRobin = 0;
     private void sendInternal(JSONObject message){
         // send client round robin
-        if(roundRobin >= clients.size()) roundRobin = 0;
-        clients.values().toArray(new ClientHandler[0])[roundRobin].send(message);
-        roundRobin++;
+        if(clients.isEmpty()) return;
+        for(ClientHandler client: clients.values()){
+            client.send(message);
+            return;
+        }
     }
 
     public static JSONObject send(JSONObject message){
