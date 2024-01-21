@@ -8,16 +8,12 @@ import com.shojabon.man10socket.socketfunctions.GUI.OpenGUIFunction;
 import org.bukkit.Bukkit;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class ClientHandler implements Runnable {
     private Socket connectionSocket;
@@ -28,6 +24,9 @@ public class ClientHandler implements Runnable {
     private LinkedBlockingQueue<JSONObject> messageQueue = new LinkedBlockingQueue<>();
 
     private final ConcurrentHashMap<String, SocketFunction> socketFunctions = new ConcurrentHashMap<>();
+
+    //thread pool executor
+    private final ExecutorService executor = Executors.newFixedThreadPool(200);
 
 
     public ClientHandler(Socket socket, UUID clientId) {
@@ -67,29 +66,26 @@ public class ClientHandler implements Runnable {
             }
         }).start();
         try {
-            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-
+            byte[] buffer = new byte[1024];
+            int bytesRead;
             StringBuilder messageBuilder = new StringBuilder();
-            int character;
-            while ((character = inFromClient.read()) != -1) {
-                // 文字を追加
-                messageBuilder.append((char) character);
-                // メッセージの終端を確認
-                if (!messageBuilder.toString().endsWith("<E>")) continue;
-                // '<E>' を除去して処理
-                String message = messageBuilder.substring(0, messageBuilder.length() - 3);
+            InputStream inputStream = connectionSocket.getInputStream();
+            // Reading data from the client
 
-                try {
-                    // JSONObject に変換
-                    JSONObject jsonObject = new JSONObject(message);
-//                    System.out.println(jsonObject.toString());
-                    handleMessage(jsonObject);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                String receivedMessage = new String(buffer, 0, bytesRead);
+                messageBuilder.append(receivedMessage);
+                if (!messageBuilder.toString().contains("<E>")) continue;
+                while (messageBuilder.toString().contains("<E>")){
+                    String[] messages = messageBuilder.toString().split("<E>", 1);
+                    JSONObject message = new JSONObject(messages[0]);
+                    executor.submit(() -> handleMessage(message));
+                    if(messages.length == 1){
+                        messageBuilder = new StringBuilder();
+                    }else{
+                        messageBuilder = new StringBuilder(messages[1]);
+                    }
                 }
-
-                // StringBuilder をリセット
-                messageBuilder = new StringBuilder();
             }
             close();
         } catch (IOException e) {
@@ -99,7 +95,6 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleMessage(JSONObject message){
-//        System.out.println("processing " + message);
         String messageType = message.getString("type");
         if(socketFunctions.containsKey(messageType)){
             String replyId = null;

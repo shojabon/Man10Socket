@@ -132,7 +132,7 @@ public final class Man10Socket extends JavaPlugin {
 
                 synchronized (lock) {
                     try {
-                        lock.wait(1000); // Wait for 1 second or until notified
+                        lock.wait(5000); // Wait for 1 second or until notified
                         JSONObject replyData = ReplyFunction.replyData.remove(replyId); // Remove and return the reply data
                         return replyData;
                     } catch (InterruptedException e) {

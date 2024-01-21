@@ -1,6 +1,7 @@
 package com.shojabon.man10socket.commands;
 
 import com.shojabon.man10socket.Man10Socket;
+import com.shojabon.man10socket.commands.subcommands.ItemInformationCommand;
 import com.shojabon.man10socket.commands.subcommands.PlayersInfoCommand;
 import com.shojabon.man10socket.commands.subcommands.ReloadCommand;
 import com.shojabon.man10socket.commands.subcommands.TestCommand;
@@ -49,6 +50,15 @@ public class Man10SocketCommands extends SCommandRouter {
                         .permission("man10socket.playersInfo")
                         .explanation("サーバーにいるプレイヤーの情報を取得")
                         .executor(new PlayersInfoCommand(plugin))
+        );
+
+        addCommand(
+                new SCommandObject()
+                        .prefix("itemInfo")
+                        .argument("itemBase64")
+                        .permission("man10socket.itemInfo")
+                        .explanation("アイテムの情報を取得")
+                        .executor(new ItemInformationCommand(plugin))
         );
 
     }

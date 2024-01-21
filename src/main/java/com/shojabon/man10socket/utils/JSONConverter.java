@@ -37,6 +37,8 @@ public class JSONConverter {
         itemData.put("displayName", sItemStack.getDisplayName());
         itemData.put("amount", sItemStack.getAmount());
         itemData.put("material", sItemStack.getType().name());
+        itemData.put("maxDamage", sItemStack.getMaxDamage());
+        itemData.put("maxStackSize", sItemStack.getMaxStackSize());
 
         List<String> lore = new ArrayList<>();
         int customModelData = -1;

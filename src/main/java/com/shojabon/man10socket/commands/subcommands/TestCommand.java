@@ -28,38 +28,8 @@ public class TestCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player p = (Player) sender;
-//        JSONObject obj = new JSONObject();
-//        obj.put("type", "request");
-//        obj.put("data", new JSONObject());
-//        obj.put("path", "test/a/d");
-//        obj.put("target", "Man10Shop");
-//        new Thread(() -> {
-//            Long start = System.currentTimeMillis();
-//            for(int i = 0; i < 10000; i++){
-//                JSONObject reply = Man10Socket.send(obj, true);
-//                Bukkit.broadcastMessage(String.valueOf(reply));
-//            }
-//            Long end = System.currentTimeMillis();
-//            p.sendMessage("time: " + (end - start));
-//        }).start();
-        SCommandRouter.addVirtualCommand("comm", new SCommandObject().prefix("a").argument("pureiya-"));
-        SCommandRouter.addVirtualCommand("comm", new SCommandObject().prefix("b"));
-
-
-        EmptyCommandProcessor c = new EmptyCommandProcessor("comm");
-        Bukkit.getServer().getCommandMap().register("comm", c);
-        try {
-            Class<?> craftServer = Bukkit.getServer().getClass();
-            Method syncCommandsMethod = craftServer.getDeclaredMethod("syncCommands");
-            syncCommandsMethod.setAccessible(true);
-            syncCommandsMethod.invoke(Bukkit.getServer());
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Bukkit.broadcastMessage(new SItemStack(p.getInventory().getItemInMainHand()).getItemTypeMD5(true));
+        Bukkit.broadcastMessage(new SItemStack(p.getInventory().getItemInMainHand()).getItemTypeMD5(false));
 
         return true;
     }
