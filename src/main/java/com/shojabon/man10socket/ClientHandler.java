@@ -28,6 +28,9 @@ public class ClientHandler implements Runnable {
     //thread pool executor
     private final ExecutorService executor = Executors.newFixedThreadPool(200);
 
+    public SetNameFunction setNameFunction = new SetNameFunction();
+    public SubscribeToEventFunction subscribeToEventFunction = new SubscribeToEventFunction();
+
 
     public ClientHandler(Socket socket, UUID clientId) {
         this.connectionSocket = socket;
@@ -41,6 +44,8 @@ public class ClientHandler implements Runnable {
 
         registerSocketFunction(new OpenGUIFunction());
         registerSocketFunction(new GUIUpdateFunction());
+        registerSocketFunction(setNameFunction);
+        registerSocketFunction(subscribeToEventFunction);
     }
 
     private void registerSocketFunction(SocketFunction function){
@@ -77,13 +82,18 @@ public class ClientHandler implements Runnable {
                 messageBuilder.append(receivedMessage);
                 if (!messageBuilder.toString().contains("<E>")) continue;
                 while (messageBuilder.toString().contains("<E>")){
-                    String[] messages = messageBuilder.toString().split("<E>", 1);
-                    JSONObject message = new JSONObject(messages[0]);
-                    executor.submit(() -> handleMessage(message));
-                    if(messages.length == 1){
-                        messageBuilder = new StringBuilder();
-                    }else{
-                        messageBuilder = new StringBuilder(messages[1]);
+                    String[] messages = messageBuilder.toString().split("<E>", 2);
+                    try{
+                        JSONObject message = new JSONObject(messages[0]);
+                        executor.submit(() -> handleMessage(message));
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }finally {
+                        if(messages.length == 1){
+                            messageBuilder = new StringBuilder();
+                        }else{
+                            messageBuilder = new StringBuilder(messages[1]);
+                        }
                     }
                 }
             }

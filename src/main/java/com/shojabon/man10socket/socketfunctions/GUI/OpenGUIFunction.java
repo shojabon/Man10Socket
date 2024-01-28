@@ -84,6 +84,7 @@ public class OpenGUIFunction extends SocketFunction {
 
             client.sendReply("success", null, replyId);
         }catch (Exception e){
+            e.printStackTrace();
             client.sendReply("error_internal", null, replyId);
         }
     }

@@ -98,25 +98,29 @@ public final class Man10Socket extends JavaPlugin {
     private void sendInternal(JSONObject message){
         // send client round robin
         if(clients.isEmpty()) return;
+        String target = null;
+        if(message.has("target")) target = message.getString("target");
         for(ClientHandler client: clients.values()){
+            if(target != null && !client.setNameFunction.name.equalsIgnoreCase(target)) continue;
             client.send(message);
             return;
         }
     }
 
-    public static JSONObject send(JSONObject message){
-        return send(message, false, null);
+    public static JSONObject send(String target, JSONObject message){
+        return send(target, message, false, null);
     }
 
-    public static JSONObject send(JSONObject message, Boolean reply){
-        return send(message, reply, null);
+    public static JSONObject send(String target, JSONObject message, Boolean reply){
+        return send(target, message, reply, null);
     }
 
-    public static JSONObject send(JSONObject message, Consumer<JSONObject> callback){
-        return send(message, false, callback);
+    public static JSONObject send(String target, JSONObject message, Consumer<JSONObject> callback){
+        return send(target, message, false, callback);
     }
 
-    private static JSONObject send(JSONObject message, Boolean reply, Consumer<JSONObject> callback){
+    private static JSONObject send(String target, JSONObject message, Boolean reply, Consumer<JSONObject> callback){
+        message.put("target", target);
         if (callback != null || reply) {
             String replyId = UUID.randomUUID().toString();
             message.put("replyId", replyId);
@@ -152,7 +156,11 @@ public final class Man10Socket extends JavaPlugin {
         obj.put("type", "event");
         obj.put("event", eventName);
         obj.put("data", message);
-        send(obj);
+        for(ClientHandler client: clients.values()){
+            if(client.subscribeToEventFunction.eventTypes.contains(eventName) || client.subscribeToEventFunction.eventTypes.contains("*")){
+                client.send(obj);
+            }
+        }
     }
     public static JSONObject getPlayerJSON(Player p){
         Map<String, Object> result = new HashMap<>();
